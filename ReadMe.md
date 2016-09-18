@@ -1,5 +1,4 @@
-<<<<<<< HEAD
-Human Activity Recognition Using Smartphones
+#Human Activity Recognition Using Smartphones
 ========================================================
 
 ### Introduction
@@ -14,6 +13,12 @@ Data: http://archive.ics.uci.edu/ml/machine-learning-databases/00240/UCI%20HAR%2
 
 `CodeBook.md` Description of the variables, processes, and data, and data tranformations used in this project.
 ###Script
+## Running the script
+
+To run the script, source `run_analysis.R`.
+
+
+
 
 The Script:  run_Analysis.R does the following:
 
