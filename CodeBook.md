@@ -723,11 +723,11 @@ aggregateDataStandardDeviation<-sapply(aggregateData,sd,na.rm=TRUE)
 
 #### 5.  creates a second, independent tidy data set with the average of each variable for each activity and each subject.
 
-...
+```
 DT <- data.table(aggregateData)
 tidy<-DT[,lapply(.SD,mean),by="Activity,Subject"]
 write.table(tidy,file="tidy.csv",sep=",",col.names = NA, row.names= FALSE)
-...
+```
 
 
 There are a couple of warnings, which can safely be ignored during the generation of the new file, they do not affect the outcome.
