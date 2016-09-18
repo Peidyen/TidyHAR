@@ -664,7 +664,6 @@ The datafile is loaded and unzipped:
 fileUrl <- "https://d396qusza40orc.cloudfront.net/getdata%2Fprojectfiles%2FUCI%20HAR%20Dataset.zip"
 download.file(fileUrl, destfile = "Dataset.zip")
 unzip("Dataset.zip")
-```
 
 The script first loads the Test and Training data using the read.table library.  Please ensure you have the read.table package installed prior to running the script.
 
