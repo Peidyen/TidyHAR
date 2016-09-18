@@ -1,4 +1,5 @@
-<<<<<<< HEAD
+#Human Activity Recognition Using Smartphones
+
 ### Introduction
 
 This codebook file describes the data variables and processes used.
