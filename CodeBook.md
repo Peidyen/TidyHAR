@@ -100,16 +100,18 @@ attributes[,2] = gsub('-std', 'Std', attributes[,2])
 attributes[,2] = gsub('[-()]', '', attributes[,2])
 ```
 
+### Criteria #1:  Merges the training and the test sets to create one data set.
 ### Merge both data sets together
 ```
 fullData = rbind(trainingDataSet, testDataSet)
 ```
 
+
+### Criteria# 2. Extracts only the measurements on the mean and standard deviation for each measurement. 
 ### Limit the data to the mean and the standard deviation.
 ```
 desiredColumns <- grep(".*Mean.*|.*Std.*", attributes[,2])
 ```
-
 ### First reduce the attributes table to what we want
 ```
 attributes <- attributes[desiredColumns,]
@@ -125,12 +127,14 @@ desiredColumns <- c(desiredColumns, 562, 563)
 fullData <- fullData[,desiredColumns]
 ```
 
+### Criteria #4. Appropriately labels the data set with descriptive variable names. 
 ### Add the column names (attributes) to fullData
 ```
 colnames(fullData) <- c(attributes$V2, "Activity", "Subject")
 colnames(fullData) <- tolower(colnames(fullData))
 ```
 
+### Criteria #3. Uses descriptive activity names to name the activities in the data set
 ### Subset by Activity and Subject
 ```
 currentActivity = 1
@@ -142,12 +146,14 @@ for (currentActivityLabel in activityLabels$V2) {
 fullData$activity <- as.factor(fullData$activity)
 fullData$subject <- as.factor(fullData$subject)
 ```
-### Aggregate the data
+
+### Criteria # 5. From the data set in step 4, creates a second, independent tidy data set with the average of each variable for each activity and each subject.
+### Aggregate the data by variable and subject.
 ```
 tidy = aggregate(fullData, by=list(activity = fullData$activity, subject=fullData$subject), mean)
 ```
 
-# The mean of these two columns have no meaning.
+### The mean of these two columns have no meaning.
 ```
 tidy[,90] = NULL
 tidy[,89] = NULL

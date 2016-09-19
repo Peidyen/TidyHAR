@@ -2,7 +2,7 @@
 ========================================================
 
 ### Introduction
-This is the code for the Getting and Cleaning Data Course Project.
+This is the code for the Coursera:  Getting and Cleaning Data Course Project.
 
 ### Data Set
 "Human Activity Recognition Using Smartphones" 
@@ -12,9 +12,10 @@ Data: http://archive.ics.uci.edu/ml/machine-learning-databases/00240/UCI%20HAR%2
 ### Codebook
 
 `CodeBook.md` Description of the variables, processes, and data, and data tranformations used in this project.
-###Script
-## Running the script
 
+###Script
+
+## Running the script
 To run the script, source `run_analysis.R`.
 
 
