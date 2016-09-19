@@ -66,112 +66,97 @@ fBodyAccJerkMag
 fBodyGyroMag
 fBodyGyroJerkMag
 
-The set of variables that were estimated from these signals (from the features.txt file) are: 
-
-mean(): Mean value
-std(): Standard deviation
-mad(): Median absolute deviation 
-max(): Largest value in array
-min(): Smallest value in array
-sma(): Signal magnitude area
-energy(): Energy measure. Sum of the squares divided by the number of values. 
-iqr(): Interquartile range 
-entropy(): Signal entropy
-arCoeff(): Autorregresion coefficients with Burg order equal to 4
-correlation(): correlation coefficient between two signals
-maxInds(): index of the frequency component with largest magnitude
-meanFreq(): Weighted average of the frequency components to obtain a mean frequency
-skewness(): skewness of the frequency domain signal 
-kurtosis(): kurtosis of the frequency domain signal 
-bandsEnergy(): Energy of a frequency interval within the 64 bins of the FFT of each window.
-angle(): Angle between to vectors.
-
-Additional vectors obtained by averaging the signals in a signal window sample. These are used on the angle() variable:
-
-gravityMean
-tBodyAccMean
-tBodyAccJerkMean
-tBodyGyroMean
-tBodyGyroJerkMean
 
 There are a total of 561 variables referenced in the original dataset.
 
-### Data Transformations
+# Data Transformations
 
-#### Load test and training sets and the activities
+## Load test and training sets and the activities
 
-The datafile is loaded and unzipped:
-
+###Read Test Data
 ```
-fileUrl <- "https://d396qusza40orc.cloudfront.net/getdata%2Fprojectfiles%2FUCI%20HAR%20Dataset.zip"
-download.file(fileUrl, destfile = "Dataset.zip")
-unzip("Dataset.zip")
-```
-
-The script first loads the Test and Training data using the read.table library.  Please ensure you have the read.table package installed prior to running the script.
-
-```
-testSet <- read.table("./UCI HAR Dataset/test/X_test.txt",header=FALSE)
-testSetAccount <- read.table("./UCI HAR Dataset/test/y_test.txt",header=FALSE)
-testSetSub <- read.table("./UCI HAR Dataset/test/subject_test.txt",header=FALSE)
-trainSet <- read.table("./UCI HAR Dataset/train/X_train.txt",header=FALSE)
-trainSetAccount <- read.table("./UCI HAR Dataset/train/y_train.txt",header=FALSE)
-trainSetSub <- read.table("./UCI HAR Dataset/train/subject_train.txt",header=FALSE)
+testDataSet = read.csv("test/X_test.txt", sep="", header=FALSE)
+testDataSet[,562] = read.csv("test/Y_test.txt", sep="", header=FALSE)
+testDataSet[,563] = read.csv("test/subject_test.txt", sep="", header=FALSE)
 ```
 
-#### 3. Uses descriptive activity names to name the activities in the data set
-Activity names are updated from the `activity_labels.txt` file.
-
-
+###Read trainingDataSet Data
 ```
-ActsObject <- read.table("./UCI HAR Dataset/activity_labels.txt",header=FALSE,colClasses="character")
-testSetActivities$V1 <- factor(testSetActivities$V1,levels=ActsObject$V1,labels=ActsObject$V2)
-trainSetActivities$V1 <- factor(trainSetActivities$V1,levels=ActsObject$V1,labels=ActsObject$V2)
+trainingDataSet = read.csv("train/X_train.txt", sep="", header=FALSE)
+trainingDataSet[,562] = read.csv("train/Y_train.txt", sep="", header=FALSE)
+trainingDataSet[,563] = read.csv("train/subject_train.txt", sep="", header=FALSE)
 ```
 
-#### 4. Appropriately labels the data set with descriptive variable names.
-
-Column Names are made more 'friendly'.
+### Get the list of labels
 ```
-features <- read.table("./UCI HAR Dataset/features.txt",header=FALSE,colClasses="character")
-features <- read.table("./UCI HAR Dataset/features.txt",header=FALSE,colClasses="character")
-colnames(testSet)<-features$V2
-colnames(trainSet)<-features$V2
-colnames(testSetActivities)<-c("Activity")
-colnames(trainSetActivities)<-c("Activity")
-colnames(testSetSub)<-c("Subject")
-colnames(trainSetSub)<-c("Subject")
+activityLabels = read.csv("activity_labels.txt", sep="", header=FALSE)
 ```
 
-### 1. Merges the training and the test sets to create one data set.
-The test and training datasets are merged by creating a new dataframe containing both.
-
+### Adjust attributes
 ```
-testSet<-cbind(testSet,testSetActivities)
-testSet<-cbind(testSet,testSetSub)
-trainSet<-cbind(trainSet,trainSetActivities)
-trainSet<-cbind(trainSet,trainSetSub)
-aggregateData<-rbind(testSet,trainSet)
+attributes = read.csv("features.txt", sep="", header=FALSE)
+attributes[,2] = gsub('-mean', 'Mean', attributes[,2])
+attributes[,2] = gsub('-std', 'Std', attributes[,2])
+attributes[,2] = gsub('[-()]', '', attributes[,2])
 ```
 
-#### Extract only the measurements on the mean and standard deviation for each measurement
-
-`mean()` and `sd()` are used against `bigData` via `sapply()` to extract the requested measurements.
-
+### Merge both data sets together
 ```
-aggregateDataMean<-sapply(aggregateData,mean,na.rm=TRUE)
-aggregateDataStandardDeviation<-sapply(aggregateData,sd,na.rm=TRUE)
+fullData = rbind(trainingDataSet, testDataSet)
 ```
 
-#### 5.  creates a second, independent tidy data set with the average of each variable for each activity and each subject.
-
+### Limit the data to the mean and the standard deviation.
 ```
-DT <- data.table(aggregateData)
-tidy<-DT[,lapply(.SD,mean),by="Activity,Subject"]
-write.table(tidy,file="tidy.csv",sep=",",col.names = NA, row.names= FALSE)
+desiredColumns <- grep(".*Mean.*|.*Std.*", attributes[,2])
 ```
 
+### First reduce the attributes table to what we want
+```
+attributes <- attributes[desiredColumns,]
+```
 
-There are a couple of warnings, which can safely be ignored during the generation of the new file, they do not affect the outcome.
+### Add columns for subject and activity
+```
+desiredColumns <- c(desiredColumns, 562, 563)
+```
+
+### And remove the unwanted columns from fullData
+```
+fullData <- fullData[,desiredColumns]
+```
+
+### Add the column names (attributes) to fullData
+```
+colnames(fullData) <- c(attributes$V2, "Activity", "Subject")
+colnames(fullData) <- tolower(colnames(fullData))
+```
+
+### Subset by Activity and Subject
+```
+currentActivity = 1
+for (currentActivityLabel in activityLabels$V2) {
+  fullData$activity <- gsub(currentActivity, currentActivityLabel, fullData$activity)
+  currentActivity <- currentActivity + 1
+}
+
+fullData$activity <- as.factor(fullData$activity)
+fullData$subject <- as.factor(fullData$subject)
+```
+### Aggregate the data
+```
+tidy = aggregate(fullData, by=list(activity = fullData$activity, subject=fullData$subject), mean)
+```
+
+# The mean of these two columns have no meaning.
+```
+tidy[,90] = NULL
+tidy[,89] = NULL
+```
+
+###change directory to store the text file in the root working directory.
+```
+setwd("D://temp/TidyHAR/")
+write.table(tidy, "tidy.txt", sep="\t")
+```
 
 

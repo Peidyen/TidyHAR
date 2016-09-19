@@ -53,6 +53,10 @@ tidy = aggregate(fullData, by=list(activity = fullData$activity, subject=fullDat
 # The mean of these two columns have no meaning.
 tidy[,90] = NULL
 tidy[,89] = NULL
+
+
+#change directory to store the text file in the root working directory.
+setwd("D://temp/TidyHAR/")
 write.table(tidy, "tidy.txt", sep="\t")
 
 
